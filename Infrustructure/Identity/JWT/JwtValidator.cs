@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
+﻿using Domain.IRepositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -13,11 +15,13 @@ namespace Infrustructure.Identity.JWT
     public class JwtValidator
     {
         private readonly JwtSetting _jwtSetting;
-        public JwtValidator(JwtSetting jwtSetting)
+        private readonly IAuthUser _authUser;
+        public JwtValidator(JwtSetting jwtSetting, IAuthUser authUser)
         {
             _jwtSetting = jwtSetting;
+            _authUser = authUser;
         }
-        public ClaimsPrincipal ValidateToken(string token)
+        public async Task<ClaimsPrincipal> ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             try
@@ -36,15 +40,58 @@ namespace Infrustructure.Identity.JWT
 
                 var principle = tokenHandler.ValidateToken(token, validationParameters, out _);
                 if (principle == null)
-                {
                     throw new SecurityTokenValidationException("Token validation failed!");
-                }
+
+                var userEmail = principle.FindFirst(ClaimTypes.Email)?.Value ?? null;
+                if (userEmail == null)
+                    throw new ArgumentNullException("Email is null!");
+
+                var userId = principle.FindFirst("Id")?.Value ?? null;
+                if (userId == null)
+                    throw new ArgumentException("User id null!");
+
+                var user = await _authUser.FindByEmail(userEmail);
+                if (user == null)
+                    throw new ArgumentException("User not found!");
+
+                if (!user.IsActive)
+                    throw new ArgumentException("No Access!");
+
                 return principle;
             }
             catch (Exception ex)
             {
-
                 throw new SecurityTokenValidationException("Token validation failed!", ex);
+            }
+        }
+
+        public async Task Execute(TokenValidatedContext context)
+        {
+            var claimIdentity = context.Principal?.Identity as ClaimsIdentity;
+            if (claimIdentity == null || !claimIdentity.Claims.Any())
+            {
+                context.Fail("Claims are null!");
+                return;
+            }
+
+            var userId = claimIdentity.FindFirst("Id")?.Value?? null;
+            if (userId == null)
+            {             
+                context.Fail("User id is null!");
+                return;
+            }
+
+            var userEmail = claimIdentity.FindFirst(ClaimTypes.Email)?.Value ?? null;
+            if (userEmail == null)
+            {
+                context.Fail("Email is null!");
+                return;
+            }
+            var user = await _authUser.FindByEmail(userEmail);
+            if (!user.IsActive)
+            {
+                context.Fail($"{userEmail} is not active.");
+                return;
             }
         }
     }

@@ -25,7 +25,7 @@ namespace Infrustructure.Identity.JWT
                 var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
                 if (token != null)
                 {
-                    var principal = _jwtValidator.ValidateToken(token);
+                    var principal = await _jwtValidator.ValidateToken(token);
                     if (principal != null)
                         httpContext.User = principal;
                 }

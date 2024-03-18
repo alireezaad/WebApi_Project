@@ -18,7 +18,10 @@ namespace WebApi_Project.Controllers.v2
         {
             _userUseCaseManager = userManager;
         }
-
+        /// <summary>
+        /// Get all users with their tasks
+        /// </summary>
+        /// <returns>an IEnumerable of users</returns>
         public override async Task<IEnumerable<UserGetModel>> Get()
         {
             return await _userUseCaseManager.GetAllUserUC.ExecuteAsync(u=> u.Tasks);

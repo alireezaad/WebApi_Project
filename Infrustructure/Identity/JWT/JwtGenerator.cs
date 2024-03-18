@@ -18,13 +18,14 @@ namespace Infrustructure.Identity.JWT
         {
             _jwtSetting = jwtSetting;
         }
-        public string Generator(string email)
+        public string Generator(string email, int id)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
+                    new Claim("Id", id.ToString()),
                     new Claim(ClaimTypes.Email, email)
                 }),
                 Issuer = _jwtSetting.Issuer,

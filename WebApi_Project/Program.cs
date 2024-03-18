@@ -10,8 +10,13 @@ using Infrustructure.Identity.JWT;
 using Infrustructure.Persistance.DbContexts;
 using Infrustructure.Persistance.Repositories;
 using Infrustructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,24 +33,75 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
 });
 
+
+// Not neccesary if you wrote you own JwtValidator and Middleware.
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(configureOptions =>
+{
+    configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration.GetSection("JwtSetting:Issuer").Value?.ToString(),
+        ValidAudience = builder.Configuration.GetSection("Audience").Value?.ToString(),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+    };
+    // You can access token whenever you need it :
+    configureOptions.SaveToken = true; //HttpContext.GetTokenAsync();
+    configureOptions.Events = new JwtBearerEvents
+    {
+        OnChallenge = context => { return Task.CompletedTask; },
+        OnForbidden = context => { return Task.FromResult(false); },
+        OnAuthenticationFailed = context => { return Task.CompletedTask; },
+        OnMessageReceived = context => { return Task.CompletedTask; },
+        // Run after token validated:
+        OnTokenValidated = context => 
+        {
+            var tokenValidatorService = context.HttpContext.RequestServices.GetRequiredService<JwtValidator>();
+            return tokenValidatorService.Execute(context);
+        }
+    };
+});
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    //Includes comments in swagger.
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "WebApi_Project.xml"), true);
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "WebApi_Project_v1",
+        Title = "WebApi_Project",
         Version = "v1",
         Description = "Swagger for v1 of api."
     });
-    options.SwaggerDoc("v2", new OpenApiInfo
+    c.SwaggerDoc("v2", new OpenApiInfo
     {
-        Title = "WebApi_Project_v2",
+        Title = "WebApi_Project",
         Version = "v2",
         Description = "Swagger for v2 of api."
+    });
+
+    // To create swagger for different versions of api
+    c.DocInclusionPredicate((doc, apiDescrition) =>
+    {
+        if (!apiDescrition.TryGetMethodInfo(out MethodInfo methodInfo)) return false;
+
+        var version = methodInfo.DeclaringType?
+            .GetCustomAttributes<ApiVersionAttribute>(false)
+            .SelectMany(attr => attr.Versions);
+
+
+        return version.Any(v => $"v{v}" == doc);
     });
 
 });

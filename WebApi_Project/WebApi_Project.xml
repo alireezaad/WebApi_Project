@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebApi_Project</name>
+    </assembly>
+    <members>
+        <member name="M:WebApi_Project.Controllers.v1.UsersController.Get">
+            <summary>
+            Get all users without their tasks
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.UsersController.Get(System.Int32)">
+            <summary>
+            Get a user with tasks
+            </summary>
+            <param name="id">User identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.UsersController.Post(Application.Models.UserModels.UserPostModel)">
+            <summary>
+            Create a new user
+            </summary>
+            <param name="model">Including: Firstname,Lastname,Email and Password</param>
+            <returns>201 StatusCode with user's info</returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.UsersController.Put(System.Int32,Application.Models.UserModels.UserPutModel)">
+            <summary>
+            Edit a user's info like firstname,lastname,email or password
+            </summary>
+            <param name="id"></param>
+            <param name="model"></param>
+            <returns>Edited user</returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.UsersController.Delete(System.Int32)">
+            <summary>
+            Delete a user with id
+            </summary>
+            <param name="id">User identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v2.UsersController.Get">
+            <summary>
+            Get all users with their tasks
+            </summary>
+            <returns>an IEnumerable of users</returns>
+        </member>
+    </members>
+</doc>

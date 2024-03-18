@@ -1,5 +1,6 @@
 ﻿using Application.Models.UserModels;
 using Application.UseCases.Managers;
+using Asp.Versioning;
 using Infrustructure.Identity.JWT;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi_Project.Controllers.v1
 {
+    [ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -22,11 +24,11 @@ namespace WebApi_Project.Controllers.v1
         [HttpPost("Athenticate")]
         public IActionResult Post([FromBody] UserAuthorizeModel userAuthorizeModel)
         {
-            if (!_userManager.AuthUserUC.Authenticate(userAuthorizeModel).Result)
-            {
+            var tuple = _userManager.AuthUserUC.Authenticate(userAuthorizeModel).Result;
+            if (!tuple.Item2)
                 return Unauthorized("Email or pasword is incorrect!");
-            }
-            var token = _jwtGenerator.Generator(userAuthorizeModel.Email);
+
+            var token = _jwtGenerator.Generator(tuple.Item1.Email,tuple.Item1.Id);
             return Ok(new { Token = token });
         }
 

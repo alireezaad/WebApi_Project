@@ -1,11 +1,13 @@
 ﻿using Application.Models.TaskEntityModels;
 using Application.UseCases.TaskEntityUseCases;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WebApi_Project.Controllers.v1
 {
+    [ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
     public class TaskEntitiesController : ControllerBase
