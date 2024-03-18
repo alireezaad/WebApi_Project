@@ -40,14 +40,14 @@ builder.Services.AddSwaggerGen(options =>
         Title = "WebApi_Project_v1",
         Version = "v1",
         Description = "Swagger for v1 of api."
-    //});
-    //options.SwaggerDoc("v2", new OpenApiInfo
-    //{
-    //    Title = "WebApi_Project_v2",
-    //    Version = "v2",
-    //    Description = "Swagger for v2 of api."
-    //});
-    
+    });
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Title = "WebApi_Project_v2",
+        Version = "v2",
+        Description = "Swagger for v2 of api."
+    });
+
 });
 
 var app = builder.Build();
