@@ -3,6 +3,7 @@ using Application.UseCases.Managers;
 using Asp.Versioning;
 using Infrustructure.Identity.JWT;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,26 +12,66 @@ namespace WebApi_Project.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public partial class AccountController : ControllerBase
     {
+        [GeneratedRegex("^09\\d{9}$")]
+        private static partial Regex MyRegex();
         private readonly IUserUseCaseManager _userManager;
-        private JwtGenerator _jwtGenerator;
         public AccountController(IUserUseCaseManager userManager, JwtGenerator jwtGenerator)
         {
             _userManager = userManager;
-            _jwtGenerator = jwtGenerator;
         }
-        // GET: api/<AccountController>
-        [HttpPost("Athenticate")]
+        // Authorize with email & password
+        [HttpPost("AthenticateWithEmail&Password")]
         public IActionResult Post([FromBody] UserAuthorizeModel userAuthorizeModel)
         {
-            var tuple = _userManager.AuthUserUC.Authenticate(userAuthorizeModel).Result;
-            if (!tuple.Item2)
+            var token = _userManager.AuthUserUC.AuthenticateWithPasswordAsync(userAuthorizeModel).Result;
+            if (string.IsNullOrEmpty(token.Token) || string.IsNullOrEmpty(token.RefreshToken))
                 return Unauthorized("Email or pasword is incorrect!");
 
-            var token = _jwtGenerator.Generator(tuple.Item1.Email,tuple.Item1.Id);
-            return Ok(new { Token = token });
+            return Ok(token);
         }
+
+        [HttpPost("AuthenticateWithRefreshToken")]
+        public IActionResult Post([FromBody] string refreshToken)
+        {
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized("Invalid refresh token");
+
+            return Ok(_userManager.AuthUserUC.AuthenticateWithRefreshToken(refreshToken).Result);
+        }
+
+        // Authorize with phonenumber
+        [HttpGet("AuthenticateWithPhonenumber/{phonenumber}")]
+        public IActionResult Get(string phonenumber)
+        {
+            //This validation should be implemented in UI.
+            if (!MyRegex().IsMatch(phonenumber))
+                return BadRequest("Phonenumber is invalid");
+
+            _userManager.AuthUserUC.GenerateCode(phonenumber);
+            return Ok(); 
+        }
+
+        [HttpPost("VerifyPhonenumber")]
+        public IActionResult Post([FromBody] string phonenumber, string code)
+        {
+            if (string.IsNullOrEmpty(phonenumber) || string.IsNullOrEmpty(code))
+                return BadRequest("invalid code!");
+
+            var result = _userManager.AuthUserUC.AuthenticateWithPhonenumber(phonenumber, code).Result;
+            if (!result.IsSuccess)
+                return Unauthorized(result.Message);
+
+            HttpContext.Response.Cookies.Append("refreshToken", result.Tokens.RefreshToken,new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = result.RefreshTokenExpiration
+            });
+            return Ok(result.Tokens);
+        }
+
 
         //// GET api/<AccountController>/5
         //[HttpGet("{id}")]

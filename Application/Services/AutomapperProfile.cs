@@ -1,4 +1,5 @@
 ﻿using Application.Models.TaskEntityModels;
+using Application.Models.TokenModels;
 using Application.Models.UserModels;
 using AutoMapper;
 using Domain.Entities;
@@ -30,6 +31,10 @@ namespace Application.Services
 
             CreateMap<User, UserGetModel>()
                 .ForMember(dest => dest.Tasks, opt => opt.MapFrom(src => src.Tasks.Select(t => t.Id)));
+
+            CreateMap<UserToken, TokenGenerateModel>()
+                .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token))
+                .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken));
         }
     }
 }

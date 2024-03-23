@@ -17,7 +17,7 @@ namespace Infrustructure.Persistance.Repositories
         private GetByIdUserUC _getByIdUserUC;
         private GetAllUserUC _getAllUserUC;
         private UpdateUserUC _updateUserUC;
-        private AuthUserUC _authUserUC;
+        private AuthenticationUC _authUserUC;
         public CreateUserUC CreateUserUC => _createUserUC;
 
         public DeleteUserUC DeleteUserUC => _deleteUserUC;
@@ -27,9 +27,9 @@ namespace Infrustructure.Persistance.Repositories
         public GetByIdUserUC GetByIdUserUC => _getByIdUserUC;
 
         public UpdateUserUC UpdateUserUC => _updateUserUC;
-        public AuthUserUC AuthUserUC => _authUserUC;
+        public AuthenticationUC AuthUserUC => _authUserUC;
 
-        public UserUseCaseManager(CreateUserUC createUserUC, DeleteUserUC deleteUserUC, GetAllUserUC getAllUserUC, GetByIdUserUC getByIdUserUC, UpdateUserUC updateUserUC, AuthUserUC authUserUC)
+        public UserUseCaseManager(CreateUserUC createUserUC, DeleteUserUC deleteUserUC, GetAllUserUC getAllUserUC, GetByIdUserUC getByIdUserUC, UpdateUserUC updateUserUC, AuthenticationUC authUserUC)
         {
             _createUserUC = createUserUC;
             _deleteUserUC = deleteUserUC;

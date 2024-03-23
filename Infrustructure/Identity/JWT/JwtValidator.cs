@@ -15,8 +15,8 @@ namespace Infrustructure.Identity.JWT
     public class JwtValidator
     {
         private readonly JwtSetting _jwtSetting;
-        private readonly IAuthUser _authUser;
-        public JwtValidator(JwtSetting jwtSetting, IAuthUser authUser)
+        private readonly IAuthenticationServices _authUser;
+        public JwtValidator(JwtSetting jwtSetting, IAuthenticationServices authUser)
         {
             _jwtSetting = jwtSetting;
             _authUser = authUser;
@@ -36,23 +36,16 @@ namespace Infrustructure.Identity.JWT
                     IssuerSigningKey = _jwtSetting.GetSymmetricSecurityKey(),
                     RequireExpirationTime = true,
                     ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
 
-                var principle = tokenHandler.ValidateToken(token, validationParameters, out _);
-                if (principle == null)
-                    throw new SecurityTokenValidationException("Token validation failed!");
+                var principle = tokenHandler.ValidateToken(token, validationParameters, out _) ?? throw new SecurityTokenValidationException("Token validation failed!");
 
-                var userEmail = principle.FindFirst(ClaimTypes.Email)?.Value ?? null;
-                if (userEmail == null)
-                    throw new ArgumentNullException("Email is null!");
+                var userPhone = (principle.FindFirst(ClaimTypes.MobilePhone)?.Value ?? null) ?? throw new ArgumentNullException("Phonenumber is null!");
 
-                var userId = principle.FindFirst("Id")?.Value ?? null;
-                if (userId == null)
-                    throw new ArgumentException("User id null!");
+                var userId = (principle.FindFirst("Id")?.Value ?? null) ?? throw new ArgumentException("User id null!");
 
-                var user = await _authUser.FindByEmail(userEmail);
-                if (user == null)
-                    throw new ArgumentException("User not found!");
+                var user = await _authUser.FindByPhonenumberAsync(userPhone) ?? throw new ArgumentException("User not found!");
 
                 if (!user.IsActive)
                     throw new ArgumentException("No Access!");
@@ -67,7 +60,7 @@ namespace Infrustructure.Identity.JWT
 
         public async Task Execute(TokenValidatedContext context)
         {
-            var claimIdentity = context.Principal?.Identity as ClaimsIdentity;
+            ClaimsIdentity? claimIdentity = context.Principal?.Identity as ClaimsIdentity;
             if (claimIdentity == null || !claimIdentity.Claims.Any())
             {
                 context.Fail("Claims are null!");
@@ -81,16 +74,16 @@ namespace Infrustructure.Identity.JWT
                 return;
             }
 
-            var userEmail = claimIdentity.FindFirst(ClaimTypes.Email)?.Value ?? null;
-            if (userEmail == null)
+            var userPhone = claimIdentity.FindFirst(ClaimTypes.MobilePhone)?.Value ?? null;
+            if (userPhone == null)
             {
-                context.Fail("Email is null!");
+                context.Fail("phonenumber is null!");
                 return;
             }
-            var user = await _authUser.FindByEmail(userEmail);
+            var user = await _authUser.FindByPhonenumberAsync(userPhone);
             if (!user.IsActive)
             {
-                context.Fail($"{userEmail} is not active.");
+                context.Fail($"{userPhone} is not active.");
                 return;
             }
         }

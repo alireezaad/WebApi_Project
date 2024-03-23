@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.IRepositories
 {
-    public interface IAuthUser
+    public interface ITokenServices
     {
-        Task<User> FindByEmail(string email);
-        bool VerifyPassword(User user, string password);
+        Task<UserToken> SaveTokenAsync(UserToken userTokens);
+        Task DeleteTokenAsync(Guid userTokenId);
     }
 }

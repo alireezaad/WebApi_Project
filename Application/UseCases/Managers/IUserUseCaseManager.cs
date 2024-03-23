@@ -15,6 +15,6 @@ namespace Application.UseCases.Managers
         GetAllUserUC GetAllUserUC { get; }
         GetByIdUserUC GetByIdUserUC { get; }
         UpdateUserUC UpdateUserUC { get; }
-        AuthUserUC AuthUserUC { get; }
+        AuthenticationUC AuthUserUC { get; }
     }
 }

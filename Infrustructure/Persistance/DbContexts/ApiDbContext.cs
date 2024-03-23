@@ -13,6 +13,8 @@ namespace Infrustructure.Persistance.DbContexts
     {
         public DbSet<TaskEntity> TaskEntities { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
+        public DbSet<SmsCode> smsCodes { get; set; }
 
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
         {
@@ -22,6 +24,7 @@ namespace Infrustructure.Persistance.DbContexts
         {
             builder.ApplyConfiguration(new UserConfigs());
             builder.ApplyConfiguration(new TaskEntityConfigs());
+            builder.ApplyConfiguration(new UserTokenConfigs());
         }
     }
 }

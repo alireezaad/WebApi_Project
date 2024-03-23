@@ -35,39 +35,39 @@ builder.Services.AddApiVersioning(options =>
 
 
 // Not neccesary if you wrote you own JwtValidator and Middleware.
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(configureOptions =>
-{
-    configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration.GetSection("JwtSetting:Issuer").Value?.ToString(),
-        ValidAudience = builder.Configuration.GetSection("Audience").Value?.ToString(),
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
-        ValidateIssuerSigningKey = true,
-        ValidateLifetime = true,
-    };
-    // You can access token whenever you need it :
-    configureOptions.SaveToken = true; //HttpContext.GetTokenAsync();
-    configureOptions.Events = new JwtBearerEvents
-    {
-        OnChallenge = context => { return Task.CompletedTask; },
-        OnForbidden = context => { return Task.FromResult(false); },
-        OnAuthenticationFailed = context => { return Task.CompletedTask; },
-        OnMessageReceived = context => { return Task.CompletedTask; },
-        // Run after token validated:
-        OnTokenValidated = context => 
-        {
-            var tokenValidatorService = context.HttpContext.RequestServices.GetRequiredService<JwtValidator>();
-            return tokenValidatorService.Execute(context);
-        }
-    };
-});
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(configureOptions =>
+//{
+//    configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+//    {
+//        ValidateIssuer = true,
+//        ValidIssuer = builder.Configuration.GetSection("JwtSetting:Issuer").Value?.ToString(),
+//        ValidAudience = builder.Configuration.GetSection("JwtSetting:Audience").Value?.ToString(),
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
+//        ValidateIssuerSigningKey = true,
+//        ValidateLifetime = true,
+//    };
+//    // You can access token whenever you need it :
+//    configureOptions.SaveToken = true; //HttpContext.GetTokenAsync();
+//    configureOptions.Events = new JwtBearerEvents
+//    {
+//        OnChallenge = context => { return Task.CompletedTask; },
+//        OnForbidden = context => { return Task.FromResult(false); },
+//        OnAuthenticationFailed = context => { return Task.CompletedTask; },
+//        OnMessageReceived = context => { return Task.CompletedTask; },
+//        // Run after token validated:
+//        //OnTokenValidated = context =>
+//        //{
+//        //    var tokenValidatorService = context.HttpContext.RequestServices.GetRequiredService<JwtValidator>();
+//        //    return tokenValidatorService.Execute(context);
+//        //}
+//    };
+//});
 
 builder.Services.AddControllers();
 
@@ -119,11 +119,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();
 

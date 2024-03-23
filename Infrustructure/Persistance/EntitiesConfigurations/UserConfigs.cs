@@ -14,7 +14,9 @@ namespace Infrustructure.Persistance.EntitiesConfigurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasQueryFilter(u => u.IsActive);
-            builder.Property(u => u.IsActive).HasDefaultValue(true);
+
+            builder.Property(u => u.IsActive)
+                .HasDefaultValue(true);
         }
     }
 }
