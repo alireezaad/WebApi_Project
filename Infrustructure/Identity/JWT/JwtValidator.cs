@@ -1,5 +1,6 @@
 ﻿using Domain.IRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -16,10 +17,13 @@ namespace Infrustructure.Identity.JWT
     {
         private readonly JwtSetting _jwtSetting;
         private readonly IAuthenticationServices _authUser;
-        public JwtValidator(JwtSetting jwtSetting, IAuthenticationServices authUser)
+        private readonly ITokenServices _tokenServices;
+        public JwtValidator(JwtSetting jwtSetting, IAuthenticationServices authUser, ITokenServices tokenServices)
         {
             _jwtSetting = jwtSetting;
             _authUser = authUser;
+            _tokenServices = tokenServices;
+
         }
         public async Task<ClaimsPrincipal> ValidateToken(string token)
         {
@@ -84,6 +88,12 @@ namespace Infrustructure.Identity.JWT
             if (!user.IsActive)
             {
                 context.Fail($"{userPhone} is not active.");
+                return;
+            }
+
+            if (!(context.SecurityToken is JwtSecurityToken token && _tokenServices.CheckExistsToken(user.Id, token.RawData)))
+            {
+                context.Fail("Unauthorized!");
                 return;
             }
         }

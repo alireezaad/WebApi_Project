@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Domain.IRepositories;
 using Infrustructure.Persistance.DbContexts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,19 @@ namespace Infrustructure.Persistance.Repositories
             _apiDbContext = apiDbContext;
             _securityHelper = securityHelper;
         }
+        public async Task DeleteRangeTokensAsync(int userId)
+        {
+            var allTokens = _apiDbContext.UserTokens.Where(token => token.UserId == userId).AsNoTracking().ToList();
+            _apiDbContext.UserTokens.RemoveRange(allTokens);
+            await _apiDbContext.SaveChangesAsync();
+        }
+
         public async Task DeleteTokenAsync(Guid userTokenId)
         {
             _apiDbContext.UserTokens.Remove(new UserToken { Id = userTokenId });
             await _apiDbContext.SaveChangesAsync();
         }
+
 
         public async Task<UserToken> SaveTokenAsync(UserToken userTokens)
         {
@@ -32,6 +41,12 @@ namespace Infrustructure.Persistance.Repositories
             var createdTokens = _apiDbContext.Add(userTokens);
             await _apiDbContext.SaveChangesAsync();
             return createdTokens.Entity;
+        }
+
+        public bool CheckExistsToken(int userId, string token)
+        {
+            var userTokens = _apiDbContext.UserTokens.AsNoTracking().Where(token => token.UserId == userId).ToList();
+            return userTokens.Any() && userTokens.Select(token => token.Token).Contains(_securityHelper.QuickHash(token));
         }
     }
 }

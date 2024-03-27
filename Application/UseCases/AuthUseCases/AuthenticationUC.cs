@@ -123,7 +123,7 @@ namespace Application.UseCases.AuthUseCases
                         authModel.Message = "Invalid code!";
                         return authModel;
                     }
-
+                    //TODO implement request count validation
                     smsCode.IsUsed = true;
                     smsCode.RequestCount++;
 
@@ -166,6 +166,24 @@ namespace Application.UseCases.AuthUseCases
             {
                 throw;
             }
+        }
+
+        public async Task LogOut(string userPhone)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userPhone))
+                    throw new ArgumentNullException(nameof(userPhone));
+
+                var user = await _authenticationServices.FindByPhonenumberAsync(userPhone) ?? throw new ArgumentException("User not found", nameof(userPhone));
+
+                await _tokenServices.DeleteRangeTokensAsync(user.Id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            
         }
     }
 }

@@ -35,39 +35,39 @@ builder.Services.AddApiVersioning(options =>
 
 
 // Not neccesary if you wrote you own JwtValidator and Middleware.
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(configureOptions =>
-//{
-//    configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-//    {
-//        ValidateIssuer = true,
-//        ValidIssuer = builder.Configuration.GetSection("JwtSetting:Issuer").Value?.ToString(),
-//        ValidAudience = builder.Configuration.GetSection("JwtSetting:Audience").Value?.ToString(),
-//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
-//        ValidateIssuerSigningKey = true,
-//        ValidateLifetime = true,
-//    };
-//    // You can access token whenever you need it :
-//    configureOptions.SaveToken = true; //HttpContext.GetTokenAsync();
-//    configureOptions.Events = new JwtBearerEvents
-//    {
-//        OnChallenge = context => { return Task.CompletedTask; },
-//        OnForbidden = context => { return Task.FromResult(false); },
-//        OnAuthenticationFailed = context => { return Task.CompletedTask; },
-//        OnMessageReceived = context => { return Task.CompletedTask; },
-//        // Run after token validated:
-//        //OnTokenValidated = context =>
-//        //{
-//        //    var tokenValidatorService = context.HttpContext.RequestServices.GetRequiredService<JwtValidator>();
-//        //    return tokenValidatorService.Execute(context);
-//        //}
-//    };
-//});
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(configureOptions =>
+{
+    configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration.GetSection("JwtSetting:Issuer").Value?.ToString(),
+        ValidAudience = builder.Configuration.GetSection("JwtSetting:Audience").Value?.ToString(),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+    };
+    // You can access token whenever you need it :
+    configureOptions.SaveToken = true; //HttpContext.GetTokenAsync();
+    configureOptions.Events = new JwtBearerEvents
+    {
+        OnChallenge = context => { return Task.CompletedTask; },
+        OnForbidden = context => { return Task.FromResult(false); },
+        OnAuthenticationFailed = context => { return Task.CompletedTask; },
+        OnMessageReceived = context => { return Task.CompletedTask; },
+        // Run after token validated:
+        OnTokenValidated = context =>
+        {
+            var tokenValidatorService = context.HttpContext.RequestServices.GetRequiredService<JwtValidator>();
+            return tokenValidatorService.Execute(context);
+        }
+    };
+});
 
 builder.Services.AddControllers();
 
@@ -92,17 +92,41 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     // To create swagger for different versions of api
-    c.DocInclusionPredicate((doc, apiDescrition) =>
+    //c.DocInclusionPredicate((doc, apiDescrition) =>
+    //{
+    //    if (!apiDescrition.TryGetMethodInfo(out MethodInfo methodInfo)) return false;
+
+    //    var version = methodInfo.DeclaringType?
+    //        .GetCustomAttributes<ApiVersionAttribute>(false)
+    //        .SelectMany(attr => attr.Versions);
+
+
+    //    return version.Any(v => $"v{v}" == doc);
+    //});
+
+
+    // To authorize and set Jwt in swagger:
+    var security = new OpenApiSecurityScheme
     {
-        if (!apiDescrition.TryGetMethodInfo(out MethodInfo methodInfo)) return false;
+        Name = "Jwt Auth",
+        Description = "Enter your access token",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
 
-        var version = methodInfo.DeclaringType?
-            .GetCustomAttributes<ApiVersionAttribute>(false)
-            .SelectMany(attr => attr.Versions);
-
-
-        return version.Any(v => $"v{v}" == doc);
+    c.AddSecurityDefinition(security.Reference.Id, security);
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {security , Array.Empty<string>()}
     });
+
 
 });
 
@@ -126,7 +150,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseMiddleware<JwtMiddleware>();
+//app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();
 

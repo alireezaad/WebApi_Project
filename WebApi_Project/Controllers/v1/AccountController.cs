@@ -2,7 +2,9 @@
 using Application.UseCases.Managers;
 using Asp.Versioning;
 using Infrustructure.Identity.JWT;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -54,7 +56,7 @@ namespace WebApi_Project.Controllers.v1
         }
 
         [HttpPost("VerifyPhonenumber")]
-        public IActionResult Post([FromBody] string phonenumber, string code)
+        public IActionResult Post(string phonenumber, string code)
         {
             if (string.IsNullOrEmpty(phonenumber) || string.IsNullOrEmpty(code))
                 return BadRequest("invalid code!");
@@ -72,6 +74,14 @@ namespace WebApi_Project.Controllers.v1
             return Ok(result.Tokens);
         }
 
+        [HttpGet("LogOut")]
+        [Authorize]
+        public IActionResult Get()
+        {
+            var userPhone = User.FindFirst(ClaimTypes.MobilePhone)?.Value;
+            _userManager.AuthUserUC.LogOut(userPhone).Wait();
+            return Ok();
+        }
 
         //// GET api/<AccountController>/5
         //[HttpGet("{id}")]

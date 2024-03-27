@@ -11,5 +11,7 @@ namespace Domain.IRepositories
     {
         Task<UserToken> SaveTokenAsync(UserToken userTokens);
         Task DeleteTokenAsync(Guid userTokenId);
+        Task DeleteRangeTokensAsync(int userId);
+        bool CheckExistsToken(int userId, string token);
     }
 }
