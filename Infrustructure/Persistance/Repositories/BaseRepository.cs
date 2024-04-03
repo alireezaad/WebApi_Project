@@ -28,9 +28,7 @@ namespace Infrustructure.Persistance.Repositories
 
         public async Task<List<T>> GetAllAsync(params Expression<Func<T,object>>[]? includes)
         {
-            //IQueryable<T> query =  _dbCOntext.Set<T>();
             var entityList = _dbCOntext.Set<T>().AsQueryable();
-            //return await _dbCOntext.Set<T>().Include(u => ).AsNoTracking().ToListAsync();
             if (includes?.Length >= 1)
             {
                 foreach (var include in includes)
@@ -63,7 +61,6 @@ namespace Infrustructure.Persistance.Repositories
                 }
             }
         }
-
         public async Task<T> UpdateAsync(T entity)
         {
             _dbCOntext.Set<T>().Entry(entity).State = EntityState.Modified;

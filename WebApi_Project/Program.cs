@@ -46,11 +46,14 @@ builder.Services.AddAuthentication(options =>
     configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
         ValidateIssuer = true,
+        ValidateAudience = true,
         ValidIssuer = builder.Configuration.GetSection("JwtSetting:Issuer").Value?.ToString(),
         ValidAudience = builder.Configuration.GetSection("JwtSetting:Audience").Value?.ToString(),
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
         ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSetting:SecretKey").Value)),
         ValidateLifetime = true,
+        RequireExpirationTime = true,
+        ClockSkew = TimeSpan.Zero,
     };
     // You can access token whenever you need it :
     configureOptions.SaveToken = true; //HttpContext.GetTokenAsync();
@@ -58,7 +61,11 @@ builder.Services.AddAuthentication(options =>
     {
         OnChallenge = context => { return Task.CompletedTask; },
         OnForbidden = context => { return Task.FromResult(false); },
-        OnAuthenticationFailed = context => { return Task.CompletedTask; },
+        OnAuthenticationFailed = context => 
+        {
+            var refreshToken = context.HttpContext.RequestServices.GetRequiredService<JwtRefreshToken>();
+            return refreshToken.RefreshToken(context);
+        },
         OnMessageReceived = context => { return Task.CompletedTask; },
         // Run after token validated:
         OnTokenValidated = context =>
@@ -84,12 +91,12 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "Swagger for v1 of api."
     });
-    c.SwaggerDoc("v2", new OpenApiInfo
-    {
-        Title = "WebApi_Project",
-        Version = "v2",
-        Description = "Swagger for v2 of api."
-    });
+    //c.SwaggerDoc("v2", new OpenApiInfo
+    //{
+    //    Title = "WebApi_Project",
+    //    Version = "v2",
+    //    Description = "Swagger for v2 of api."
+    //});
 
     // To create swagger for different versions of api
     //c.DocInclusionPredicate((doc, apiDescrition) =>
@@ -139,7 +146,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi_Project_v1");
-        options.SwaggerEndpoint("/swagger/v2/swagger.json", "WebApi_Project_v2");
+        //options.SwaggerEndpoint("/swagger/v2/swagger.json", "WebApi_Project_v2");
     });
 }
 

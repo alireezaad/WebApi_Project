@@ -1,4 +1,5 @@
-﻿using Application.Models.UserModels;
+﻿using Application.Models.SmsCodeModels;
+using Application.Models.UserModels;
 using Application.UseCases.Managers;
 using Asp.Versioning;
 using Infrustructure.Identity.JWT;
@@ -23,7 +24,11 @@ namespace WebApi_Project.Controllers.v1
         {
             _userManager = userManager;
         }
-        // Authorize with email & password
+        /// <summary>
+        /// Authenticate with Email and Password
+        /// </summary>
+        /// <param name="userAuthorizeModel">(Email,Password) as string</param>
+        /// <returns>Jwt as string</returns>
         [HttpPost("AthenticateWithEmail&Password")]
         public IActionResult Post([FromBody] UserAuthorizeModel userAuthorizeModel)
         {
@@ -33,35 +38,51 @@ namespace WebApi_Project.Controllers.v1
 
             return Ok(token);
         }
-
+        /// <summary>
+        /// Authenticate with RefreshToken when Jwt was expired
+        /// </summary>
+        /// <param name="refreshToken">string</param>
+        /// <returns></returns>
         [HttpPost("AuthenticateWithRefreshToken")]
         public IActionResult Post([FromBody] string refreshToken)
         {
             if (string.IsNullOrEmpty(refreshToken))
                 return Unauthorized("Invalid refresh token");
 
-            return Ok(_userManager.AuthUserUC.AuthenticateWithRefreshToken(refreshToken).Result);
+            var result = _userManager.AuthUserUC.AuthenticateWithRefreshToken(refreshToken).Result;
+            if (!result.IsSuccess)
+                return Unauthorized("Invalid refresh token");
+
+            return Ok(result.Tokens.Token);
         }
 
-        // Authorize with phonenumber
-        [HttpGet("AuthenticateWithPhonenumber/{phonenumber}")]
+        /// <summary>
+        /// Authenticate with phonenumber
+        /// </summary>
+        /// <param name="phonenumber">string</param>
+        /// <returns>Send a code to user's phonenumber</returns>
+        [HttpGet("AuthenticateWithPhonenumber")]
         public IActionResult Get(string phonenumber)
         {
             //This validation should be implemented in UI.
             if (!MyRegex().IsMatch(phonenumber))
                 return BadRequest("Phonenumber is invalid");
 
-            _userManager.AuthUserUC.GenerateCode(phonenumber);
+            _userManager.AuthUserUC.GenerateCode(phonenumber).Wait();
             return Ok(); 
         }
-
+        /// <summary>
+        /// Verify phonenumber with code 
+        /// </summary>
+        /// <param name="model">(phonenumber,code) as string</param>
+        /// <returns>Jwt as string</returns>
         [HttpPost("VerifyPhonenumber")]
-        public IActionResult Post(string phonenumber, string code)
+        public IActionResult Post([FromBody] VerifySmsCodeModel model)
         {
-            if (string.IsNullOrEmpty(phonenumber) || string.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(model.Phonenumber) || string.IsNullOrEmpty(model.Code))
                 return BadRequest("invalid code!");
 
-            var result = _userManager.AuthUserUC.AuthenticateWithPhonenumber(phonenumber, code).Result;
+            var result = _userManager.AuthUserUC.AuthenticateWithPhonenumber(model).Result;
             if (!result.IsSuccess)
                 return Unauthorized(result.Message);
 
@@ -73,7 +94,10 @@ namespace WebApi_Project.Controllers.v1
             });
             return Ok(result.Tokens);
         }
-
+        /// <summary>
+        /// Log out the user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("LogOut")]
         [Authorize]
         public IActionResult Get()
@@ -82,30 +106,5 @@ namespace WebApi_Project.Controllers.v1
             _userManager.AuthUserUC.LogOut(userPhone).Wait();
             return Ok();
         }
-
-        //// GET api/<AccountController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
-
-        //// POST api/<AccountController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/<AccountController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<AccountController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }

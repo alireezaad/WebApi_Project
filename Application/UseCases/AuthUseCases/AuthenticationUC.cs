@@ -1,4 +1,5 @@
-﻿using Application.Models.TokenModels;
+﻿using Application.Models.SmsCodeModels;
+using Application.Models.TokenModels;
 using Application.Models.UserModels;
 using Application.Services;
 using Application.Services_Interfaces;
@@ -97,12 +98,12 @@ namespace Application.UseCases.AuthUseCases
             await _authenticationServices.GenerateSmsCodeAsync(phonenumber);
         }
 
-        public async Task<AuthenticateResultModel> AuthenticateWithPhonenumber(string phonenumber, string code)
+        public async Task<AuthenticateResultModel> AuthenticateWithPhonenumber(VerifySmsCodeModel model)
         {
             try
             {
                 var authModel = new AuthenticateResultModel();
-                var smsCode = _authenticationServices.VerifySmsCode(phonenumber, code).Result;
+                var smsCode = _authenticationServices.VerifySmsCode(model.Phonenumber, model.Code).Result;
                 if (smsCode == null)
                 {
                     authModel.IsSuccess = false;
@@ -127,10 +128,10 @@ namespace Application.UseCases.AuthUseCases
                     smsCode.IsUsed = true;
                     smsCode.RequestCount++;
 
-                    var user = _authenticationServices.FindByPhonenumberAsync(phonenumber).Result;
+                    var user = _authenticationServices.FindByPhonenumberAsync(model.Phonenumber).Result;
                     if (user == null)
                     {
-                        user = _serviceWrapper.UserRepository.AddAsync(new User { Phonenumber = phonenumber}).Result;
+                        user = _serviceWrapper.UserRepository.AddAsync(new User { Phonenumber = model.Phonenumber}).Result;
                         var userToken = _authenticationServices.GenerateTokenAsync(user).Result;
                         if(userToken == null)
                         {

@@ -15,6 +15,48 @@
             </code>
             </remarks>
         </member>
+        <member name="M:WebApi_Project.Controllers.v1.AccountController.Post(Application.Models.UserModels.UserAuthorizeModel)">
+            <summary>
+            Authenticate with Email and Password
+            </summary>
+            <param name="userAuthorizeModel">(Email,Password) as string</param>
+            <returns>Jwt as string</returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.AccountController.Post(System.String)">
+            <summary>
+            Authenticate with RefreshToken when Jwt was expired
+            </summary>
+            <param name="refreshToken">string</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.AccountController.Get(System.String)">
+            <summary>
+            Authenticate with phonenumber
+            </summary>
+            <param name="phonenumber">string</param>
+            <returns>Send a code to user's phonenumber</returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.AccountController.Post(Application.Models.SmsCodeModels.VerifySmsCodeModel)">
+            <summary>
+            Verify phonenumber with code 
+            </summary>
+            <param name="model">(phonenumber,code) as string</param>
+            <returns>Jwt as string</returns>
+        </member>
+        <member name="M:WebApi_Project.Controllers.v1.AccountController.Get">
+            <summary>
+            Log out the user
+            </summary>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:WebApi_Project.Controllers.v1.TaskEntitiesController.Get" -->
+        <member name="M:WebApi_Project.Controllers.v1.TaskEntitiesController.Post(Application.Models.TaskEntityModels.TaskEntityPostModel)">
+            <summary>
+            Create a TaskEntity
+            </summary>
+            <param name="model">(Title,Description) as string, UserId as int</param>
+            <returns>TaskEntity</returns>
+        </member>
         <member name="M:WebApi_Project.Controllers.v1.UsersController.Get">
             <summary>
             Get all users without their tasks
@@ -55,6 +97,22 @@
             Get all users with their tasks
             </summary>
             <returns>an IEnumerable of users</returns>
+        </member>
+        <member name="T:WebApi_Project.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:WebApi_Project.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:WebApi_Project.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.MyRegex_0">
             <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the MyRegex method.</summary>

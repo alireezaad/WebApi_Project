@@ -16,7 +16,7 @@ namespace Infrustructure.Persistance.Repositories
         public CreateTaskEntityUC CreateTaskEntityUC => _createTaskEntity;
         public GetAllTaskEntityUC GetAllTaskEntityUC => _getAllTaskEntity;
 
-        public TaskEntityUseCaseManager(CreateTaskEntityUC createTaskEntityUC, GetAllTaskEntityUC getAllTaskEntityUC)
+        public TaskEntityUseCaseManager(CreateTaskEntityUC createTaskEntityUC,GetAllTaskEntityUC getAllTaskEntityUC)
         {
             _createTaskEntity = createTaskEntityUC;
             _getAllTaskEntity = getAllTaskEntityUC;

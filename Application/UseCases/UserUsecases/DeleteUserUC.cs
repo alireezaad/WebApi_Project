@@ -32,15 +32,12 @@ namespace Application.UseCases.UserUsecases
                 foreach (var task in user.Tasks.ToList())
                 {
                     user.RemoveTaskEntity(task);
-                    //user.Tasks.Remove(task);
                 }
-
                 user.IsActive = false;
                 await _services.UserRepository.UpdateAsync(user);
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

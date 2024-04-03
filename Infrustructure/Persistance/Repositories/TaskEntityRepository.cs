@@ -3,10 +3,8 @@ using Domain.IRepositories;
 using Domain.Repositories;
 using Infrustructure.Persistance.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +14,7 @@ namespace Infrustructure.Persistance.Repositories
     {
         public TaskEntityRepository(ApiDbContext dbCOntext) : base(dbCOntext)
         {
+
         }
         //private readonly ApiDbContext _dbContext;
         //public TaskEntityRepository(ApiDbContext dbContext)

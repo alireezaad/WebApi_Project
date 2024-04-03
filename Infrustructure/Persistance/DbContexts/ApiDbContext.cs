@@ -24,7 +24,6 @@ namespace Infrustructure.Persistance.DbContexts
         {
             builder.ApplyConfiguration(new UserConfigs());
             builder.ApplyConfiguration(new TaskEntityConfigs());
-            builder.ApplyConfiguration(new UserTokenConfigs());
         }
     }
 }

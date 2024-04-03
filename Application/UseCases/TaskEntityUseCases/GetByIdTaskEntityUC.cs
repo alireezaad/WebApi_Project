@@ -19,16 +19,17 @@ namespace Application.UseCases.TaskEntityUseCases
             _services = services;
             _mapper = mapper;
         }
-
         public async Task<TaskEntityGetModel> ExecuteAsync(int id)
         {
             try
             {
                 if (id <= 0)
-                {
-                    throw new ArgumentException();
-                }
+                    throw new ArgumentException("invalid id!");
+
                 var taskEntity = await _services.TaskEntityRepository.GetAsync(id);
+                if (taskEntity == null) 
+                    throw new ArgumentException("invalid id!");
+
                 await _services.TaskEntityRepository.LoadCollections(taskEntity, t => t.Users);
                 return _mapper.Map<TaskEntityGetModel>(taskEntity);
             }

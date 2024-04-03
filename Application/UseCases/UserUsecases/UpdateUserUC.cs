@@ -33,6 +33,7 @@ namespace Application.UseCases.UserUsecases
                     throw new ArgumentNullException("Model is null!");
                 }
                 var user = await _services.UserRepository.GetAsync(id);
+                // in RESTful if an entity was not avaliable for modifying we should create and return in to user:
                 if (user == null)
                 {
                     user = _mapper.Map<User>(model);

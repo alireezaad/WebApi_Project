@@ -28,7 +28,6 @@ namespace Domain.Entities
             if (!Tasks.Contains(taskEntity))
             {
                 this.Tasks.Add(taskEntity);
-                taskEntity.AddUser(this);
             }
         }
 
@@ -37,7 +36,6 @@ namespace Domain.Entities
             if (Tasks.Contains(taskEntity))
             {
                 this.Tasks.Remove(taskEntity);
-                //taskEntity.RemoveUser(this);
             }
         }
     }

@@ -25,37 +25,31 @@ namespace Infrustructure.Services
     {
         public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration) 
         {
+            //Jwt Services
             var jwtSetting = new JwtSetting();
             configuration.GetSection("JwtSetting").Bind(jwtSetting);
             services.AddSingleton(jwtSetting);
-
-            services.AddScoped<ITokenServices, TokenServices>();
-            services.AddScoped<ISecurityHelper, SecurityHelper>();
-
             services.AddScoped<JwtGenerator>();
-
             services.AddScoped<JwtValidator>();
 
 
-            #region Register AutomapperProfile
-
+            //AutoMapper
             var mapperConfigs = new MapperConfiguration(cfgs =>
             {
                 cfgs.AddProfile(typeof(AutomapperProfile));
             });
             services.AddSingleton<IMapper>(ss => mapperConfigs.CreateMapper());
 
-            #endregion
-
+            // Sevices
             services.AddScoped<IAuthenticationServices, AuthenticationServices>();
             services.AddScoped<ITaskEntityRepository, TaskEntityRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IServiceWrapper, ServiceWrapper>();
 
+            services.AddScoped<ITokenServices, TokenServices>();
+            services.AddScoped<ISecurityHelper, SecurityHelper>();
 
-
-
-            // UseCeses
+            //UseCeses
             services.AddScoped<CreateUserUC>();
             services.AddScoped<GetAllUserUC>();
             services.AddScoped<GetByIdUserUC>();
@@ -67,9 +61,6 @@ namespace Infrustructure.Services
             services.AddScoped<CreateTaskEntityUC>();
             services.AddScoped<GetAllTaskEntityUC>();
             services.AddScoped<ITaskEntityUseCaseManager, TaskEntityUseCaseManager>();
-
-
-
 
             return services;
         }

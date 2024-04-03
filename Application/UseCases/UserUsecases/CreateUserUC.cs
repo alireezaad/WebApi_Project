@@ -43,10 +43,8 @@ namespace Application.UseCases.UserUsecases
                     user.AddTaskEntity(taskEntity);
                 }
 
-                //await _userRepository.LoadTasksAsync(user);
                 await _services.UserRepository.AddAsync(user);
                 var viewModel = _mapper.Map<UserGetModel>(user);
-                //viewModel.Tasks = user.Tasks.Select(u => u.Id);
                 return viewModel;
             }
             catch (Exception)

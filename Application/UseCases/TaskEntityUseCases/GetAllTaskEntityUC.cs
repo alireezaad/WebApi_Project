@@ -25,8 +25,11 @@ namespace Application.UseCases.TaskEntityUseCases
         public async Task<List<TaskEntityGetModel>> ExecuteAsync()
         {
             // with loading of all users
-            //var taskEntities = await _services.TaskEntityRepository.GetAllAsync(t => t.Users);
-            var taskEntities = await _services.TaskEntityRepository.GetAllAsync();
+            var taskEntities = await _services.TaskEntityRepository.GetAllAsync(t => t.Users);
+
+            //Dont loading of all users
+            //var taskEntities = await _services.TaskEntityRepository.GetAllAsync();\
+
             var taskViewModels = _mapper.Map<List<TaskEntityGetModel>>(taskEntities);
             return taskViewModels;
         }

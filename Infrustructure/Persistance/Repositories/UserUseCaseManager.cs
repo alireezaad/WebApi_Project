@@ -29,7 +29,7 @@ namespace Infrustructure.Persistance.Repositories
         public UpdateUserUC UpdateUserUC => _updateUserUC;
         public AuthenticationUC AuthUserUC => _authUserUC;
 
-        public UserUseCaseManager(CreateUserUC createUserUC, DeleteUserUC deleteUserUC, GetAllUserUC getAllUserUC, GetByIdUserUC getByIdUserUC, UpdateUserUC updateUserUC, AuthenticationUC authUserUC)
+        public UserUseCaseManager(CreateUserUC createUserUC, DeleteUserUC deleteUserUC,GetAllUserUC getAllUserUC, GetByIdUserUC getByIdUserUC,UpdateUserUC updateUserUC, AuthenticationUC authUserUC)
         {
             _createUserUC = createUserUC;
             _deleteUserUC = deleteUserUC;

@@ -56,9 +56,9 @@ namespace Infrustructure.Identity.JWT
 
                 return principle;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new SecurityTokenValidationException("Token validation failed!", ex);
+                throw;
             }
         }
 
@@ -96,6 +96,9 @@ namespace Infrustructure.Identity.JWT
                 context.Fail("Unauthorized!");
                 return;
             }
+
+            context.Success();
+            return;
         }
     }
 }

@@ -20,27 +20,39 @@ namespace WebApi_Project.Controllers.v1
             _getAllTask = getAllTask;
         }
 
-        // GET: api/<TaskEntitiesController>
+        /// <summary>
+        /// Get all TaskEntities with all Users
+        /// </summary>
+        /// <returns>IEnumerable<TaskEntityGetModel></returns>
         [HttpGet]
         public async Task<IEnumerable<TaskEntityGetModel>> Get()
         {
             return await _getAllTask.ExecuteAsync();
         }
-
-        // GET api/<TaskEntitiesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<TaskEntitiesController>
+        /// <summary>
+        /// Create a TaskEntity
+        /// </summary>
+        /// <param name="model">(Title,Description) as string, UserId as int</param>
+        /// <returns>TaskEntity</returns>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TaskEntityPostModel model)
         {
             var taskViewModel = await _createTask.ExecuteAsync(model);
             var url = Url.Action(nameof(Get), "TaskEntities", new { taskViewModel.Id }, Request.Scheme);
             return Created(url, taskViewModel);
+        }
+
+
+
+
+
+
+
+        // GET api/<TaskEntitiesController>/5
+        [HttpGet("{id}")]
+        public string Get(int id)
+        {
+            return "value";
         }
 
         // PUT api/<TaskEntitiesController>/5

@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrustructure", "Infrustru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentations", "Presentations", "{D649A2E3-14E5-464F-9D89-24AC119D234B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestSharpClient", "RestSharpClient\RestSharpClient.csproj", "{7B0BB456-2243-4B65-BD8B-8043B6531BFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{9C5A194D-5797-4F90-B66C-EEA6F2323466}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C5A194D-5797-4F90-B66C-EEA6F2323466}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C5A194D-5797-4F90-B66C-EEA6F2323466}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B0BB456-2243-4B65-BD8B-8043B6531BFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B0BB456-2243-4B65-BD8B-8043B6531BFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B0BB456-2243-4B65-BD8B-8043B6531BFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B0BB456-2243-4B65-BD8B-8043B6531BFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -18,14 +18,12 @@ namespace Domain.Entities
         public string Description { get; set; }
         public ICollection<User> Users { get; set; }
         public bool IsRemoved { get; set; }
-        //public ICollection<TaskEntityUser> TaskEntityUsers { get; set; }
 
         public void AddUser(User user)
         {
             if (!Users.Contains(user))
             {
                 this.Users.Add(user);
-                user.AddTaskEntity(this);
             }
         }
         public void RemoveUser(User user)
@@ -33,7 +31,6 @@ namespace Domain.Entities
             if (Users.Contains(user))
             {
                 Users.Remove(user);
-                user.RemoveTaskEntity(this);
             }
         }
     }

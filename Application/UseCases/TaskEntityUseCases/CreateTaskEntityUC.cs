@@ -15,7 +15,6 @@ namespace Application.UseCases.TaskEntityUseCases
 {
     public class CreateTaskEntityUC
     {
-        //private readonly IMapper _mapper;
         private readonly IServiceWrapper _services;
         private readonly IMapper _mapper;
         public CreateTaskEntityUC(IServiceWrapper services, IMapper mapper)
@@ -33,7 +32,6 @@ namespace Application.UseCases.TaskEntityUseCases
                 }
 
                 var taskEntity = _mapper.Map<TaskEntity>(model);
-                //await _taskEntityRepository.LoadUsers(taskEntity);
                 var user = await _services.UserRepository.GetAsync(model.UserId);
                 if (user == null)
                 {
@@ -41,15 +39,8 @@ namespace Application.UseCases.TaskEntityUseCases
                 }
                 taskEntity.AddUser(user);
 
-                //var taskEntity = new TaskEntity()
-                //{
-                //    Title = model.Title,
-                //    Description = model.Description,
-                //};
-
                 await _services.TaskEntityRepository.AddAsync(taskEntity);
                 var viewModel = _mapper.Map<TaskEntityGetModel>(taskEntity);
-                //viewModel.Users = taskEntity.Users.Select(u => u.Id);
                 return viewModel;
                 
             }
