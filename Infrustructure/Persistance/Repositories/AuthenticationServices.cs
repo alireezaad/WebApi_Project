@@ -18,11 +18,13 @@ namespace Infrustructure.Persistance.Repositories
         private readonly ApiDbContext _dbContext;
         //private readonly SecurityHelper _securityHelper;
         private readonly JwtGenerator _jwtGenerator;
-        public AuthenticationServices(ApiDbContext dbContext,/* SecurityHelper securityHelper,*/ JwtGenerator jwtGenerator)
+        private readonly SmsService _msService;
+        public AuthenticationServices(ApiDbContext dbContext,/* SecurityHelper securityHelper,*/ JwtGenerator jwtGenerator, SmsService smsService)
         {
             _dbContext = dbContext;
             _jwtGenerator = jwtGenerator;
             //_securityHelper = securityHelper;
+            _msService = smsService;
         }
         public async Task<User> FindByEmailAsync(string email)
         {
@@ -36,8 +38,6 @@ namespace Infrustructure.Persistance.Repositories
         public async Task<User> FindByPhonenumberAsync(string phonenumber)
         {
             var user = _dbContext.Users.FirstOrDefault(u => u.Phonenumber == phonenumber);
-            if (user == null)
-                return new User() { };
             return user;
         }
 
@@ -67,10 +67,9 @@ namespace Infrustructure.Persistance.Repositories
                 Phonenumber = phonenumber,
                 GenerateDate = DateTime.Now,
             };
-            //TODO send sms code to user's phonenumber
-
             _dbContext.smsCodes.Add(smsCode);
             await _dbContext.SaveChangesAsync();
+            _msService.SendAsync(smsCode.Phonenumber, smsCode.Code);
         }
 
         public async Task<SmsCode> VerifySmsCode(string phonenumber, string code)

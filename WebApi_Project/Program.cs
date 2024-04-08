@@ -28,11 +28,14 @@ builder.Services.RegisterServices(builder.Configuration);
 
 builder.Services.AddApiVersioning(options =>
 {
+    //Will specify default version of apis that dont have version
     options.AssumeDefaultVersionWhenUnspecified = true;
+    // Default version
     options.DefaultApiVersion = new ApiVersion(1, 0);
+    // Reports some information about version of api in response
+    // e.x: this version is supported
     options.ReportApiVersions = true;
 });
-
 
 // Not neccesary if you wrote you own JwtValidator and Middleware.
 builder.Services.AddAuthentication(options =>
@@ -43,6 +46,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(configureOptions =>
 {
+    //these configs are for validating the token 
     configureOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
         ValidateIssuer = true,
@@ -81,10 +85,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+// Add swagger configs  
 builder.Services.AddSwaggerGen(c =>
 {
-    //Includes comments in swagger.
+    // we create a xml file for comments in Bild/Output in properties of project
+    //now we can includes comments in that file in swagger.
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "WebApi_Project.xml"), true);
+    //Add document of version 1 of swagger
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "WebApi_Project",
@@ -103,11 +110,12 @@ builder.Services.AddSwaggerGen(c =>
     //{
     //    if (!apiDescrition.TryGetMethodInfo(out MethodInfo methodInfo)) return false;
 
+    //    // get version of aactions
     //    var version = methodInfo.DeclaringType?
     //        .GetCustomAttributes<ApiVersionAttribute>(false)
     //        .SelectMany(attr => attr.Versions);
 
-
+    //    // check if the version of actions equals to documents versions.
     //    return version.Any(v => $"v{v}" == doc);
     //});
 
@@ -149,7 +157,6 @@ if (app.Environment.IsDevelopment())
         //options.SwaggerEndpoint("/swagger/v2/swagger.json", "WebApi_Project_v2");
     });
 }
-
 
 app.UseHttpsRedirection();
 

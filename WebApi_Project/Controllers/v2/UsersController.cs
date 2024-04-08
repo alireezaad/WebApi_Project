@@ -9,14 +9,17 @@ namespace WebApi_Project.Controllers.v2
 {
     [Authorize]
     [ApiController]
-    [Route("api/v{version:apiversion}/[Controller]")]
+    //Client should send api version in queryString
+    [Route("api/v{version:apiversion}/[Controller]")] // e.x: api/v2/Users/Get
     [ApiVersion("2")]
     public class UsersController : v1.UsersController
     {
         private readonly IUserUseCaseManager _userUseCaseManager;
-        public UsersController(IUserUseCaseManager userManager) : base(userManager)
+        private readonly LinkGenerator _linkGenerator;
+        public UsersController(IUserUseCaseManager userManager, LinkGenerator linkGenerator) : base(userManager, linkGenerator)
         {
             _userUseCaseManager = userManager;
+            _linkGenerator = linkGenerator;
         }
         /// <summary>
         /// Get all users with their tasks
@@ -24,6 +27,9 @@ namespace WebApi_Project.Controllers.v2
         /// <returns>an IEnumerable of users</returns>
         public override async Task<IEnumerable<UserGetModel>> Get()
         {
+            //if we wanted to use base method:
+            //return base.Get
+            //else
             return await _userUseCaseManager.GetAllUserUC.ExecuteAsync(u=> u.Tasks);
         }
 

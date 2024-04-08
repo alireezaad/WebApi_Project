@@ -92,12 +92,10 @@ namespace Application.UseCases.AuthUseCases
                 throw;
             }
         }
-
         public async Task GenerateCode(string phonenumber)
         {
             await _authenticationServices.GenerateSmsCodeAsync(phonenumber);
         }
-
         public async Task<AuthenticateResultModel> AuthenticateWithPhonenumber(VerifySmsCodeModel model)
         {
             try
@@ -124,7 +122,12 @@ namespace Application.UseCases.AuthUseCases
                         authModel.Message = "Invalid code!";
                         return authModel;
                     }
-                    //TODO implement request count validation
+                    if (smsCode.RequestCount > 0)
+                    {
+                        authModel.IsSuccess = false;
+                        authModel.Message = "Invalid code!";
+                        return authModel;
+                    }
                     smsCode.IsUsed = true;
                     smsCode.RequestCount++;
 

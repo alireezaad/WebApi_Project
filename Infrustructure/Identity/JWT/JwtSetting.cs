@@ -14,6 +14,7 @@ namespace Infrustructure.Identity.JWT
         public string Audience { get; set; }
         public string ExpirationMinutes { get; set; }
         public string SecretKey { get; set; }
+        public string RefreshTokenExpirationDays { get; set; }
 
 
         public SymmetricSecurityKey GetSymmetricSecurityKey()

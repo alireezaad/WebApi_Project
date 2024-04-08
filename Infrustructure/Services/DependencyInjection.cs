@@ -10,6 +10,7 @@ using Domain.Repositories;
 using Infrustructure.Identity.JWT;
 using Infrustructure.Persistance.DbContexts;
 using Infrustructure.Persistance.Repositories;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,6 +62,8 @@ namespace Infrustructure.Services
             services.AddScoped<CreateTaskEntityUC>();
             services.AddScoped<GetAllTaskEntityUC>();
             services.AddScoped<ITaskEntityUseCaseManager, TaskEntityUseCaseManager>();
+
+            services.AddScoped<SmsService>();
 
             return services;
         }

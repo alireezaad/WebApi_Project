@@ -20,11 +20,9 @@ namespace Infrustructure.Identity.JWT
     public class JwtGenerator
     {
         private readonly JwtSetting _jwtSetting;
-        //private readonly ITokenServices _tokenServices;
-        public JwtGenerator(JwtSetting jwtSetting/*, ITokenServices tokenServices*/)
+        public JwtGenerator(JwtSetting jwtSetting)
         {
             _jwtSetting = jwtSetting;
-            //_tokenServices = tokenServices;
         }
         public async Task<UserToken> GeneratorAsync(User user)
         {
@@ -64,7 +62,7 @@ namespace Infrustructure.Identity.JWT
                     //User = user,
                     UserId = user.Id,
                     RefreshToken = refreshToken,
-                    RefreshTokenExpiration = DateTime.Now.AddDays(int.Parse(_jwtSetting.ExpirationMinutes))
+                    RefreshTokenExpiration = DateTime.Now.AddDays(int.Parse(_jwtSetting.RefreshTokenExpirationDays))
                 };
                 //return new TokenGenerateModel { Token = securityToken, RefreshToken = refreshToken };
             }

@@ -1,4 +1,5 @@
-﻿using Application.Models.UserModels;
+﻿using Application.Models.LinkModels;
+using Application.Models.UserModels;
 using Application.UseCases.Managers;
 using Application.UseCases.UserUsecases;
 using Asp.Versioning;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi_Project.Controllers.v1
 {
+    // Deprecated(true) indicated that this version soonly going to out of service.
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
@@ -17,9 +19,11 @@ namespace WebApi_Project.Controllers.v1
     public class UsersController : ControllerBase
     {
         private readonly IUserUseCaseManager _userManager;
-        public UsersController(IUserUseCaseManager userManager)
+        private readonly LinkGenerator _linkGenerator;
+        public UsersController(IUserUseCaseManager userManager, LinkGenerator linkGenerator)
         {
             _userManager = userManager;
+            _linkGenerator = linkGenerator;
         }
         /// <summary>
         /// Get all users without their tasks
@@ -29,7 +33,13 @@ namespace WebApi_Project.Controllers.v1
         [HttpGet]
         public virtual async Task<IEnumerable<UserGetModel>> Get()
         {
-            return await _userManager.GetAllUserUC.ExecuteAsync();
+            var users = await _userManager.GetAllUserUC.ExecuteAsync();
+            for (var i = 0; i < users.Count; i++)
+            {
+                var user = users[i];
+                user.Links = CreateLinkforUser(user.Id);
+            }
+            return users;
         }
         /// <summary>
         /// Get a user with tasks
@@ -40,7 +50,9 @@ namespace WebApi_Project.Controllers.v1
         [HttpGet("{id}")]
         public virtual async Task<UserGetModel> Get(int id)
         {
-            return await _userManager.GetByIdUserUC.ExecuteAsync(id);
+            var user = await _userManager.GetByIdUserUC.ExecuteAsync(id);
+            user.Links = CreateLinkforUser(user.Id);
+            return user;
         }
         /// <summary>
         /// Create a new user
@@ -77,6 +89,18 @@ namespace WebApi_Project.Controllers.v1
         public virtual async Task Delete(int id)
         {
             await _userManager.DeleteUserUC.ExecuteAsync(id);
+        }
+
+        private IEnumerable<Link> CreateLinkforUser(int id)
+        {
+            var links = new List<Link>()
+            {
+                new Link(_linkGenerator.GetUriByAction(HttpContext,action: nameof(Get),controller: "Users",new { id },Request.Scheme), "self", "GET"),
+                new Link(_linkGenerator.GetUriByAction(HttpContext,action: nameof(Delete),"Users",new { id }, Request.Scheme), "delete_user", "DELETE"),
+                new Link(_linkGenerator.GetUriByAction(HttpContext,nameof(Put),"Users",new { id }, Request.Scheme), "update_user", "PUT"),
+            };
+
+            return links;
         }
     }
 }

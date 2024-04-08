@@ -20,7 +20,7 @@ namespace WebApi_Project.Controllers.v1
         [GeneratedRegex("^09\\d{9}$")]
         private static partial Regex MyRegex();
         private readonly IUserUseCaseManager _userManager;
-        public AccountController(IUserUseCaseManager userManager, JwtGenerator jwtGenerator)
+        public AccountController(IUserUseCaseManager userManager)
         {
             _userManager = userManager;
         }
@@ -71,6 +71,9 @@ namespace WebApi_Project.Controllers.v1
             _userManager.AuthUserUC.GenerateCode(phonenumber).Wait();
             return Ok(); 
         }
+
+
+
         /// <summary>
         /// Verify phonenumber with code 
         /// </summary>
@@ -94,6 +97,10 @@ namespace WebApi_Project.Controllers.v1
             });
             return Ok(result.Tokens);
         }
+
+
+
+
         /// <summary>
         /// Log out the user
         /// </summary>
